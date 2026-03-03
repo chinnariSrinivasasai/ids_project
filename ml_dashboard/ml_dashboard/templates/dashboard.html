@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>Explainable IDS Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url("{% static 'images/clg_logo.jpg' %}");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 400px;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+            height: 100vh;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .card {
+            background: #51e2f5;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0px 10px #51e2f5;
+        }
+
+        .card>h2 {
+            color: blue;
+            font-size: 1.5rem;
+            text-decoration: underline;
+        }
+
+        .lime .table_div {
+            overflow-y: scroll;
+            /* Enables scrolling */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
+        }
+
+        .lime .table_div::-webkit-scrollbar {
+            display: none;
+            /* Chrome, Safari, Opera */
+        }
+
+        .btn {
+            padding: 20px 30px;
+            font-size: 1em;
+            font-weight: bold;
+            background: #007bffbd;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn:hover {
+            background: #007bff;
+            color: rgb(255, 255, 255);
+        }
+
+        .status-green {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-red {
+            color: red;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            border: none;
+            outline: none;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #cbddf1;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .attack {
+            color: red;
+            font-weight: bold;
+        }
+
+        .normal {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        iframe {
+            border: none;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            width: 100%;
+            margin: auto;
+            height: fit-content;
+            background-color: rgb(220, 220, 243);
+        }
+
+        .navbar h1 {
+            font-size: 2.5em;
+        }
+
+        .navbar img {
+            border: none;
+            border-radius: 50px;
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin: auto;
+        }
+
+        .team_details {
+            background-color: rgb(35, 152, 231);
+            border-radius: 10px;
+            color: white;
+            padding: 20px;
+            margin-top: 5px;
+        }
+
+        .team_details ul li {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <h1 style="color: rgb(2, 69, 100);">Explainable AI for Intrusion Detection System</h1>
+        <img src="{% static 'images/clg_logo.jpg' %}" alt="clg_logo" width="50px">
+    </div>
+    <div class="details">
+        <h2>Under the Guidance of <span style="text-decoration: underline; ">"PSSM.Raju Sir"</span></h2>
+        <div class="team_details">
+            <h3 style="text-decoration: underline;padding: 0;">Team Members:</h3>
+            <ul style="list-style-type: decimal;">
+                <li>Srinivasasai</li>
+                <li>Laxmi Pravallika</li>
+                <li>Uma MaheshwaraRao</li>
+                <li>Murali</li>
+            </ul>
+        </div>
+
+    </div>
+    <div class="container">
+
+        <!-- ================= Model Status ================= -->
+        <div class="card">
+            <h2>System Status</h2>
+            <ul>
+                {% for k, v in models_status.items %}
+                <li style="list-style: none;">
+                    {{ k }}:
+                    <span class="{% if v == 'Loaded' %}status-green{% else %}status-red{% endif %}">
+                        {{ v }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- ================= Prediction Section ================= -->
+        <div class="card">
+            <h2>Intrusion Detection Test</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                <label><strong>Enter 41 Network Features with comma separated:</strong></label><br>
+                <input type="text" name="features" value="{{ last_input }}" placeholder="e.g. 0.5, 1.2, 0.0, 443, ..."
+                    required>
+                <br><br>
+                <button type="submit" class="btn">Predict</button>
+            </form>
+
+            {% if error_message %}
+            <p class="error">{{ error_message }}</p>
+            {% endif %}
+
+            {% if prediction_result %}
+            <div class="result-box">
+                <h3>
+                    Result:
+                    <span class="{% if 'Attack' in prediction_result %}attack{% else %}normal{% endif %}">
+                        {{ prediction_result }}
+                    </span>
+                </h3>
+
+                <p>
+                    Confidence Score:
+                    <strong>{{ prediction_confidence|floatformat:4 }}</strong>
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ================= SHAP Section ================= -->
+        {% if shap_image %}
+        <div class="card">
+            <h2>SHAP Feature Importance</h2>
+            <p>This plot shows the contribution of each feature to the prediction.</p>
+            <img src="/static/{{ shap_image }}" alt="SHAP Explanation">
+        </div>
+        {% endif %}
+
+        <!-- ================= LIME Section ================= -->
+        {% if lime_html %}
+        <div class="card">
+            <h2>LIME Explanation</h2>
+            <p>This explanation shows local feature impact for this prediction.</p>
+            <iframe src="/static/{{ lime_html }}" width="100%" height="500px"></iframe>
+        </div>
+        {% endif %}
+
+        <!-- ================= Training History ================= -->
+        <div class="card">
+            <h2>Training History</h2>
+            <canvas id="lossChart"></canvas>
+        </div>
+
+    </div>
+
+    <script>
+        const historyData = JSON.parse('{{ history_json|escapejs }}');
+
+        if (historyData && historyData.loss) {
+            const ctx = document.getElementById('lossChart').getContext('2d');
+
+            const epochs = Array.from(
+                { length: historyData.loss.length },
+                (_, i) => i + 1
+            );
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: epochs,
+                    datasets: [
+                        {
+                            label: 'Training Loss',
+                            data: historyData.loss,
+                            borderColor: 'red',
+                            fill: false
+                        },
+                        {
+                            label: 'Validation Loss',
+                            data: historyData.val_loss,
+                            borderColor: 'blue',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: 'Epoch' } },
+                        y: { title: { display: true, text: 'Loss' } }
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>
